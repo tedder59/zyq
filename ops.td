@@ -212,7 +212,7 @@ def ReshapeOp : ZYQ_Op<"reshape", [NoSideEffect]> {
 }
 
 def ReturnOp : ZYQ_Op<"return", [NoSideEffect,
-                                 HasParent<"::mlir::FuncOp">,
+                                 HasParent<"FuncOp">,
                                  Terminator]> {
     let summary = "return operation";
     let description = [{
@@ -263,11 +263,5 @@ def TransposeOp : ZYQ_Op<"transpose",
 
     let hasCanonicalizer = 1;
 }
-
-
-
-
-
-
 
 #endif // ZYQ_OPS

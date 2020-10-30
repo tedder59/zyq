@@ -12,15 +12,12 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-#include "passes.h"
-#include "dialect.h"
-#include "shape_inference_interface.h"
-
 #include "mlir/Pass/Pass.h"
-#include "mlir/IR/StandardTypes.h"
-#include "llvm/Support/raw_ostream.h"
+#include "dialect.h"
+#include "passes.h"
 #include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/Support/Debug.h"
+#include "llvm/Support/raw_ostream.h"
 
 #define DEBUG_TYPE "shape-inference"
 
@@ -36,16 +33,17 @@ class ShapeInferencePass : public PassWrapper<ShapeInferencePass, FunctionPass>
 public:
     void runOnFunction() override {
         auto f = getFunction();
+        if (f.getName() != "main") return;
 
-        llvm::SmallPtrSet<Operation*, 16> op_work_list;
-        f.walk([&](Operation *op) {
+        llvm::SmallPtrSet<mlir::Operation*, 16> op_work_list;
+        f.walk([&](mlir::Operation *op) {
             if (returnsDynamicShape(op))
                 op_work_list.insert(op);
         });
 
         while (!op_work_list.empty())
         {
-            auto nextop = llvm::find_if(op_work_list, allOperandsInffered);
+            auto nextop = llvm::find_if(op_work_list, allOperandsInferred);
             if (nextop == op_work_list.end()) break;
 
             Operation *op = *nextop;
@@ -72,14 +70,14 @@ public:
         }
     }
 
-    static bool allOperandsInffered(Operation *op) {
+    static bool allOperandsInferred(Operation *op) {
         return llvm::all_of(op->getOperandTypes(), [](Type operand_type) {
                 return operand_type.isa<RankedTensorType>();
             });
     }
 
     static bool returnsDynamicShape(Operation *op) {
-        return llvm::any_of(op->getOperandTypes(), [](Type result_type) {
+        return llvm::any_of(op->getResultTypes(), [](Type result_type) {
                 return !result_type.isa<RankedTensorType>();
             });
     }
@@ -87,7 +85,7 @@ public:
 
 }   // anonymous namespace
 
-std::unique_ptr<Pass> mlir::zyq::createShapeInferencePass()
+std::unique_ptr<mlir::Pass> mlir::zyq::createShapeInferencePass()
 {
     return std::make_unique<ShapeInferencePass>();
 }

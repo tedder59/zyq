@@ -22,12 +22,10 @@ def ReshapeReshapeOptPattern : Pat<(ReshapeOp(ReshapeOp $arg)),
 
 def ReshapeConstant :
     NativeCodeCall<"$0.reshape(($1.getType()).cast<ShapedType>())">;
-
 def FoldConstantReshapeOptPattern : Pat<(ReshapeOp:$res (ConstantOp $arg)),
                                         (ConstantOp (ReshapeConstant $arg, $res))>;
 
 def TypesAreIdentical : Constraint<CPred<"$0.getType() == $1.getType()">>;
-
 def RedundantReshapeOptPattern : Pat<(ReshapeOp:$res $arg),
                                      (replaceWithValue $arg),
                                      [(TypesAreIdentical $res, $arg)]>;

@@ -43,7 +43,8 @@ mlir_tablegen(combine.inc -gen-rewriters)
 add_public_tablegen_target(CombineIncGen)
 
 add_library(zyq dialect.cpp mlirgen.cpp combine.cpp
-                shape_inference_pass.cpp )
+                shape_inference_pass.cpp
+                lower_to_affine_loops.cpp)
 add_dependencies(zyq ShapeInferenceInterfaceIncGen
                      OpsIncGen CombineIncGen)
 target_link_libraries(zyq ${MLIR_DIR_LIBS})

@@ -115,21 +115,32 @@ int dumpMLIR()
     if (int error = loadMLIR(source_mgr, context, module))
         return error;
 
+    mlir::PassManager pm(&context);
+    applyPassManagerCLOptions(pm);
+
     if (enableOpt)
     {
-        mlir::PassManager pm(&context);
-        applyPassManagerCLOptions(pm);
-
         pm.addPass(mlir::createInlinerPass());
 
         mlir::OpPassManager &opt_pm = pm.nest<mlir::FuncOp>();
         opt_pm.addPass(mlir::zyq::createShapeInferencePass());
         opt_pm.addPass(mlir::createCanonicalizerPass());
         opt_pm.addPass(mlir::createCSEPass());
-        
-        if (mlir::failed(pm.run(*module)))
-            return 4;
     }
+
+    // partial lowering
+    {
+        pm.addPass(mlir::zyq::createLowerToAffinePass());
+
+        mlir::OpPassManager &opt_pm = pm.nest<mlir::FuncOp>();
+        opt_pm.addPass(mlir::createCanonicalizerPass());
+        opt_pm.addPass(mlir::createCSEPass());
+        opt_pm.addPass(mlir::createLoopFusionPass());
+        opt_pm.addPass(mlir::createMemRefDataFlowOptPass());
+    }
+
+    if (mlir::failed(pm.run(*module)))
+        return 4;
 
     module->dump();
 

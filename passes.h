@@ -21,7 +21,9 @@ namespace mlir {
 class Pass;
 
 namespace zyq {
-std::unique_ptr<mlir::Pass> createShapeInferencePass();
+std::unique_ptr<Pass> createShapeInferencePass();
+
+std::unique_ptr<Pass> createLowerToAffinePass();
 } // end namespace zyq
 } // end namespace mlir
 

@@ -15,11 +15,11 @@
 #ifndef DIALECT_H_
 #define DIALECT_H_
 
-#include "shape_inference_interface.h"
-
 #include "mlir/IR/Dialect.h"
 #include "mlir/IR/Function.h"
+#include "mlir/IR/StandardTypes.h"
 #include "mlir/Interfaces/SideEffectInterfaces.h"
+#include "shape_inference_interface.h"
 
 namespace mlir {
 namespace zyq {
