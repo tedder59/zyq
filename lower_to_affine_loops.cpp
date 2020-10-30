@@ -162,14 +162,13 @@ struct ReturnOpLowering : public OpRewritePattern<zyq::ReturnOp>
     }
 };
 
-struct TransposeOpLowering : public ConversionPattern
+struct TransposeOpLowering : public mlir::ConversionPattern
 {
-    TransposeOpLowering(MLIRContext *ctx)
-            : ConversionPattern(zyq::TransposeOp::getOperationName(), 1, ctx) {}
+    TransposeOpLowering(mlir::MLIRContext *ctx)
+            : mlir::ConversionPattern(zyq::TransposeOp::getOperationName(), 1, ctx) {}
         
-    LogicalResult matchAndRewrite(Operation *op, ArrayRef<Value> operands,
+    LogicalResult matchAndRewrite(Operation *op, ArrayRef<mlir::Value> operands,
                                   ConversionPatternRewriter &rewriter) const final {
-        
         auto loc = op->getLoc();
         lowerOpToLoops(op, operands, rewriter,
                        [loc](OpBuilder &builder, ValueRange memRefOperands,
